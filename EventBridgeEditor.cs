@@ -7,13 +7,13 @@ using UnityEngine;
 
 namespace Bipolar.ComponentEvents.Editor
 {
-    [CustomEditor(typeof(ComponentEvents))]
-    public class ComponentEventsEditor : UnityEditor.Editor
+    [CustomEditor(typeof(EventBridge))]
+    public class EventBridgeEditor : UnityEditor.Editor
     {
         public override void OnInspectorGUI()
         {
             using (new EditorGUI.DisabledScope(true))
-                EditorGUILayout.ObjectField("Script", MonoScript.FromMonoBehaviour((MonoBehaviour)target), GetType(), false);
+                ;// EditorGUILayout.ObjectField("Script", MonoScript.FromMonoBehaviour((MonoBehaviour)target), GetType(), false);
 
 #if !UNITY_2021_1_OR_NEWER
             if (PlayerSettings.GetScriptingBackend(EditorUserBuildSettings.selectedBuildTargetGroup) == ScriptingImplementation.IL2CPP)
@@ -22,7 +22,7 @@ namespace Bipolar.ComponentEvents.Editor
                 //return;
             }
 #endif
-            var componentProperty = serializedObject.FindProperty(nameof(ComponentEvents.component));
+            var componentProperty = serializedObject.FindProperty(nameof(EventBridge.component));
             EditorGUI.BeginChangeCheck();
             EditorGUILayout.PropertyField(componentProperty);
             if (EditorGUI.EndChangeCheck())
@@ -37,7 +37,7 @@ namespace Bipolar.ComponentEvents.Editor
             var eventsToSerialize = new List<EventInfo>(events);
 
             bool somethingChanged = false;
-            var eventsDataProperty = serializedObject.FindProperty(nameof(ComponentEvents.eventsData));
+            var eventsDataProperty = serializedObject.FindProperty(nameof(EventBridge.eventsData));
             eventsDataProperty.arraySize = Mathf.Max(eventsDataProperty.arraySize, events.Length);
             for (int i = 0; i < events.Length; i++)
             {
@@ -139,7 +139,7 @@ namespace Bipolar.ComponentEvents.Editor
             for (int i = 0; i < possibleParametersCount; i++)
             {
                 var argumentType = eventParameters[i].ParameterType;
-                var eventDataType = ComponentEvents.GetEventDataType(argumentType);
+                var eventDataType = EventBridge.GetEventDataType(argumentType);
                 if (eventDataType != null)
                     return eventDataType;
             }

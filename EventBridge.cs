@@ -8,19 +8,21 @@ using System.Linq;
 
 namespace Bipolar.ComponentEvents
 {
-    public sealed partial class ComponentEvents : MonoBehaviour
+    public sealed partial class EventBridge : MonoBehaviour
     {
-        private static readonly Dictionary<Type, Type> eventDataTypesByArgumentType = new Dictionary<Type, Type>
+        public static Dictionary<Type, Type> EventDataTypesByArgumentType { get; } = new Dictionary<Type, Type>
         {
             [typeof(int)] = typeof(EventDataInt),
             [typeof(bool)] = typeof(EventDataBool),
             [typeof(float)] = typeof(EventDataFloat),
             [typeof(string)] = typeof(EventDataString),
-        };
+            [typeof(char)] = typeof(EventDataChar),
+            [typeof(double)] = typeof(EventDataDouble),
+		};
 
-        public static Type GetEventDataType(Type argumentType)
+		public static Type GetEventDataType(Type argumentType)
         {
-            if (eventDataTypesByArgumentType.TryGetValue(argumentType, out var unityEventType))
+            if (EventDataTypesByArgumentType.TryGetValue(argumentType, out var unityEventType))
                 return unityEventType;
 
             return null;
@@ -63,7 +65,7 @@ namespace Bipolar.ComponentEvents
                     for (int a = 0; a < possibleParametersCount; a++)
                     {
                         var argumentType = eventParameters[a].Type;
-                        if (eventDataTypesByArgumentType.ContainsKey(argumentType))
+                        if (EventDataTypesByArgumentType.ContainsKey(argumentType))
                         {
                             Expression passedParameter = eventParameters[a];
                             body = Expression.Call(instanceExpression, invokeUnityEventInfo, passedParameter);
@@ -98,7 +100,7 @@ namespace Bipolar.ComponentEvents
             foreach (var eventDatum in eventsData)
             {
                 EventInfo eventInfo = eventDatum.EventInfo;
-                Debug.Log(eventDatum.UnityEvent.GetPersistentEventCount() + " persistent actions");
+                //Debug.Log(eventDatum.UnityEvent.GetPersistentEventCount() + " persistent actions");
                 eventInfo.AddEventHandler(component, eventDatum.InvokeDelegate);
             }
         }
@@ -106,7 +108,7 @@ namespace Bipolar.ComponentEvents
         private void OnDisable()
         {
             foreach (var eventDatum in eventsData)
-                eventDatum?.EventInfo?.AddEventHandler(component, eventDatum.InvokeDelegate);
+                eventDatum?.EventInfo?.RemoveEventHandler(component, eventDatum.InvokeDelegate);
         }
 
         private void OnDestroy()
