@@ -32,3 +32,52 @@ the same event must be declared in code, joined with UnityEvent, manually forwar
 
 ### Solution
 This module was created to eliminate that duplication. It provides a component that automatically creates Inspector-visible UnityEvents for every C# event of specified compnents. This preserves the reliability and refactor safety of native C# events, while restoring the convenience of Unity’s Inspector-based workflow.
+
+## Usage
+
+### Initial situation
+At the beginning a Component with at least one public event is needed.
+For example:
+```csharp
+public class Health : MonoBehaviour
+{
+    public event System.Action<int> OnHealthChanged;
+
+    public void TakeDamage(int amount)
+    {
+        OnHealthChanged?.Invoke(amount);
+    }
+}
+```
+
+### Adding ComponentEvents
+Attach the `ComponentEvents` component to the same GameObject (or any other GameObject) and reference the target component.
+The component will automatically detect and expose all supported C# events in the Inspector.
+
+<img width="386" height="230" alt="image" src="https://github.com/user-attachments/assets/991e0d5c-a298-4a86-83ca-614cd51234fd" />
+
+
+### Binding Listeners in the Inspector
+Each detected C# event has a serialized UnityEvent representation, which gets called each time the original C# event is invoked.
+
+You can now attach:
+- Methods from other object
+- UI callbacks
+- Audio triggers
+- VFX triggers
+
+No additional wrapper code is required.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
