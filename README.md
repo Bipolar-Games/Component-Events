@@ -1,2 +1,30 @@
 # Component Events
 [![Unity 2021.1+](https://img.shields.io/badge/unity-2021.1%2B-blue.svg)](https://unity3d.com/get-unity/download)
+![License: MIT](https://img.shields.io/badge/License-MIT-brightgreen.svg)
+
+## Installation 
+There are no custom steps to adding the package to your project. Just choose one of following installation methods:
+
+1) Download ZIP of the repository and extract it to your project Assets folder.
+
+2) Add package through Unity Package Manager by choosing "Add package from git URL..." option and then typing "https://github.com/Bipolar-Games/Component-Events.git".
+
+3) Add the Component Events repository as submodule to your project git repository.
+
+4) Use any other method you prefer.
+
+## Rationale
+C# events are generally preferable to UnityEvents, especially in terms of performance, refactor safety, and debugging convenience.
+
+However, despite their shortcomings, UnityEvents provide one extremely valuable feature — serialization and Inspector visibility. Game developers (particularly non-programming designers) can attach functions to events directly in the Editor without modifying code. This significantly speeds up prototyping and encourages loose coupling between components.
+
+That convenience, however, comes with a serious limitation.
+
+UnityEvent bindings are serialized by method name and argument signature. Any change to the method name or its parameters breaks the reference. In many cases, no error is reported until the event is invoked — which may happen much later during runtime.
+
+Because of this, UnityEvents are best suited for simple, low-risk scenarios. In systems where reliability and refactor safety are critical, native C# events remain the preferred solution.
+
+For people who want to join reliability with convenience, using C# events while also exposing UnityEvents might be a solution. However this results in duplicated wiring logic:
+the same event must be declared in code, wrapped in a UnityEvent, manually forwarded, and maintained. Over time, this repetition increases boilerplate, reduces clarity, and introduces additional maintenance overhead.
+
+This module was created to eliminate that duplication. It provides a component that automatically creates Inspector-visible UnityEvents for every C# event of specified compnents. This preserves the reliability and refactor safety of native C# events, while restoring the convenience of Unity’s Inspector-based workflow.
