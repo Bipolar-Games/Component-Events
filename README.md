@@ -16,15 +16,19 @@ There are no custom steps to adding the package to your project. Just choose one
 ## Rationale
 C# events are generally preferable to UnityEvents, especially in terms of performance, refactor safety, and debugging convenience.
 
+### UnityEvents advantages
 However, despite their shortcomings, UnityEvents provide one extremely valuable feature — serialization and Inspector visibility. Game developers (particularly non-programming designers) can attach functions to events directly in the Editor without modifying code. This significantly speeds up prototyping and encourages loose coupling between components.
 
+### UnityEvents problems
 That convenience, however, comes with a serious limitation.
 
-UnityEvent bindings are serialized by method name and argument signature. Any change to the method name or its parameters breaks the reference. In many cases, no error is reported until the event is invoked — which may happen much later during runtime.
+UnityEvent bindings are serialized by method name and argument signature. Any change to the method name or its parameters breaks the reference. In many cases, no error is reported until the event is invoked — which may happen much later during runtime. This makes debugging even more difficult.
 
 Because of this, UnityEvents are best suited for simple, low-risk scenarios. In systems where reliability and refactor safety are critical, native C# events remain the preferred solution.
 
+### Alternative approach
 For people who want to join reliability with convenience, using C# events while also exposing UnityEvents might be a solution. However this results in duplicated wiring logic:
-the same event must be declared in code, wrapped in a UnityEvent, manually forwarded, and maintained. Over time, this repetition increases boilerplate, reduces clarity, and introduces additional maintenance overhead.
+the same event must be declared in code, joined with UnityEvent, manually forwarded, and maintained. Over time, this repetition increases boilerplate, reduces clarity, and introduces additional maintenance overhead.
 
+### Solution
 This module was created to eliminate that duplication. It provides a component that automatically creates Inspector-visible UnityEvents for every C# event of specified compnents. This preserves the reliability and refactor safety of native C# events, while restoring the convenience of Unity’s Inspector-based workflow.
