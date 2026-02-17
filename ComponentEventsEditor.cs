@@ -22,7 +22,7 @@ namespace Bipolar.ComponentEvents.Editor
                 //return;
             }
 #endif
-            var componentProperty = serializedObject.FindProperty(nameof(ComponentEvents.component));
+            var componentProperty = serializedObject.FindProperty(nameof(ComponentEvents.targetComponent));
             EditorGUI.BeginChangeCheck();
             EditorGUILayout.PropertyField(componentProperty);
             if (EditorGUI.EndChangeCheck())
