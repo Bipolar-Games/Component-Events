@@ -27,21 +27,21 @@ namespace Bipolar.ComponentEvents
         }
 
         [SerializeField]
-        internal Component component;
+        internal Component targetComponent;
 
         [SerializeReference]
         internal BaseEventData[] eventsData;
 
         private void Awake()
         {
-            if (component == null)
+            if (targetComponent == null)
             {
                 enabled = false;
                 Destroy(this);
                 return;
             }
 
-            var componentType = component.GetType();
+            var componentType = targetComponent.GetType();
             var events = componentType.GetEvents();
             int count = Mathf.Min(events.Length, eventsData.Length);
             for (int i = 0; i < count; i++)
@@ -99,14 +99,14 @@ namespace Bipolar.ComponentEvents
             {
                 EventInfo eventInfo = eventDatum.EventInfo;
                 Debug.Log(eventDatum.UnityEvent.GetPersistentEventCount() + " persistent actions");
-                eventInfo.AddEventHandler(component, eventDatum.InvokeDelegate);
+                eventInfo.AddEventHandler(targetComponent, eventDatum.InvokeDelegate);
             }
         }
 
         private void OnDisable()
         {
             foreach (var eventDatum in eventsData)
-                eventDatum?.EventInfo?.AddEventHandler(component, eventDatum.InvokeDelegate);
+                eventDatum?.EventInfo?.AddEventHandler(targetComponent, eventDatum.InvokeDelegate);
         }
 
         private void OnDestroy()
