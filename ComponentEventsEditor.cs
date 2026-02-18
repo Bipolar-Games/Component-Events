@@ -1,5 +1,4 @@
 #if UNITY_EDITOR
-using System.Collections.Generic;
 using System.Reflection;
 using System;
 using UnityEditor;
@@ -22,59 +21,66 @@ namespace Bipolar.ComponentEvents.Editor
                 //return;
             }
 #endif
+
+            // DRAWING SCRITPT FIELD
             var componentProperty = serializedObject.FindProperty(nameof(ComponentEvents.targetComponent));
             EditorGUI.BeginChangeCheck();
             EditorGUILayout.PropertyField(componentProperty);
             if (EditorGUI.EndChangeCheck())
                 serializedObject.ApplyModifiedProperties();
 
-            var component = componentProperty?.objectReferenceValue;
-            if (component == null)
-                return;
-
-            var componentType = component.GetType();
-            var events = componentType.GetEvents();
-            var eventsToSerialize = new List<EventInfo>(events);
-
+            // CREATING/UPDATING EVENTS
             bool somethingChanged = false;
             var eventsDataProperty = serializedObject.FindProperty(nameof(ComponentEvents.eventsData));
-            eventsDataProperty.arraySize = Mathf.Max(eventsDataProperty.arraySize, events.Length);
-            for (int i = 0; i < events.Length; i++)
+            if (false)
             {
-                var componentEvent = events[i];
-                int serializedEventIndex = FindIndex(eventsDataProperty, CompareNames);
-                bool CompareNames(SerializedProperty property) =>
-                    GetEventDataName(property) == componentEvent.Name;
+                var targetComponent = componentProperty?.objectReferenceValue;
+                if (targetComponent == null)
+                    return;
 
-                if (serializedEventIndex < 0)
+                var componentType = targetComponent.GetType();
+                var events = componentType.GetEvents();
+
+                eventsDataProperty.arraySize = Mathf.Max(eventsDataProperty.arraySize, events.Length);
+                for (int i = 0; i < events.Length; i++)
                 {
-                    var newProperty = InsertArrayElementAtIndex(eventsDataProperty, i);
-                    CreateNewEventDataInProperty(newProperty, componentType, componentEvent);
+                    var componentEvent = events[i];
+                    int serializedEventIndex = FindIndex(eventsDataProperty, CompareNames);
+                    bool CompareNames(SerializedProperty property) =>
+                        GetEventDataName(property) == componentEvent.Name;
 
-                    //var unityEventProperty = newProperty.FindPropertyRelative("unityEvent");
-                    //unityEventProperty.managedReferenceValue = CreateUnityEvent(componentEvent, componentType);
-
-                    somethingChanged = true;
-                }
-                else
-                {
-                    var singleEventProperty = eventsDataProperty.GetArrayElementAtIndex(i);
-                    var correctEventType = GetEventDataType(componentEvent.EventHandlerType, componentType);
-                    if (CheckType(singleEventProperty, correctEventType) == false)
+                    if (serializedEventIndex < 0)
                     {
-                        CreateNewEventDataInProperty(singleEventProperty, componentType, componentEvent);
+                        var newProperty = InsertArrayElementAtIndex(eventsDataProperty, i);
+                        CreateNewEventDataInProperty(newProperty, componentType, componentEvent);
+
+                        //var unityEventProperty = newProperty.FindPropertyRelative("unityEvent");
+                        //unityEventProperty.managedReferenceValue = CreateUnityEvent(componentEvent, componentType);
+
                         somethingChanged = true;
                     }
-
-                    if (serializedEventIndex != i)
+                    else
                     {
-                        eventsDataProperty.MoveArrayElement(serializedEventIndex, i);
-                        somethingChanged = true;
+                        var singleEventProperty = eventsDataProperty.GetArrayElementAtIndex(i);
+                        var correctEventType = ComponentEventsUtility.GetEventDataType(componentEvent.EventHandlerType);
+                        if (CheckType(singleEventProperty, correctEventType) == false)
+                        {
+                            CreateNewEventDataInProperty(singleEventProperty, componentType, componentEvent);
+                            somethingChanged = true;
+                        }
+
+                        if (serializedEventIndex != i)
+                        {
+                            eventsDataProperty.MoveArrayElement(serializedEventIndex, i);
+                            somethingChanged = true;
+                        }
                     }
                 }
+                eventsDataProperty.arraySize = events.Length;
+    
             }
-            eventsDataProperty.arraySize = events.Length;
 
+            // DRAWING EVENTS
             EditorGUILayout.Space();
             EditorGUI.BeginChangeCheck();
             for (int i = 0; i < eventsDataProperty.arraySize; i++)
@@ -87,25 +93,25 @@ namespace Bipolar.ComponentEvents.Editor
                     EditorGUILayout.PropertyField(unityEventProperty, label);
                 }
             }
-            somethingChanged |= EditorGUI.EndChangeCheck();
+
+			somethingChanged |= EditorGUI.EndChangeCheck();
             if (somethingChanged)
                 serializedObject.ApplyModifiedProperties();
         }
 
         private static void CreateNewEventDataInProperty(SerializedProperty property, Type componentType, EventInfo componentEvent)
         {
-            property.managedReferenceValue = CreateEventData(componentEvent, componentType);
-            property.FindPropertyRelative(nameof(EventData.eventName)).stringValue = componentEvent.Name;
+            property.managedReferenceValue = ComponentEventsUtility.CreateEventData(componentEvent);
+            property.FindPropertyRelative(nameof(BaseEventData.eventName)).stringValue = componentEvent.Name;
         }
 
         private static bool CheckType(SerializedProperty eventDataProperty, Type correctEventType)
         {
-            string correctEventTypeName = correctEventType.Name;
             string eventTypeName = eventDataProperty.type;
             int realTypeNameStart = eventTypeName.IndexOf('<') + 1;
             int realTypeNameLength = eventTypeName.IndexOf('>') - realTypeNameStart;
             eventTypeName = eventTypeName.Substring(realTypeNameStart, realTypeNameLength);
-            bool isCorrect = eventTypeName == correctEventTypeName;
+            bool isCorrect = eventTypeName == correctEventType.Name;
             return isCorrect;
         }
 
@@ -121,31 +127,6 @@ namespace Bipolar.ComponentEvents.Editor
             return property?.FindPropertyRelative(nameof(EventData.eventName))?.stringValue;
         }
 
-        private static BaseEventData CreateEventData(EventInfo componentEvent, Type componentType)
-        {
-            var eventHandlerType = componentEvent.EventHandlerType;
-            Type eventDataType = GetEventDataType(eventHandlerType, componentType);
-
-            var unityEventInstance = (BaseEventData)Activator.CreateInstance(eventDataType);
-            return unityEventInstance;
-        }
-
-        private static Type GetEventDataType(Type eventHandlerType, Type componentType)
-        {
-            var methodInfo = eventHandlerType.GetMethod(nameof(Action.Invoke));
-            var eventParameters = methodInfo.GetParameters();
-
-            int possibleParametersCount = Mathf.Min(2, eventParameters.Length);
-            for (int i = 0; i < possibleParametersCount; i++)
-            {
-                var argumentType = eventParameters[i].ParameterType;
-                var eventDataType = ComponentEvents.GetEventDataType(argumentType);
-                if (eventDataType != null)
-                    return eventDataType;
-            }
-
-            return typeof(EventData);
-        }
 
         public static int FindIndex(SerializedProperty arrayProperty, Predicate<SerializedProperty> predicate)
         {

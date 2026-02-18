@@ -5,7 +5,7 @@ using UnityEngine.Events;
 namespace Bipolar.ComponentEvents
 {
     [System.Serializable]
-    internal abstract class BaseEventData
+    public abstract class BaseEventData
     {
         public string eventName;
         public abstract UnityEventBase UnityEvent { get; }
@@ -61,8 +61,41 @@ namespace Bipolar.ComponentEvents
         public override UnityEventBase UnityEvent => unityEvent;
     }
 
+	[System.Serializable]
+	internal partial class EventDataDouble : BaseEventData
+	{
+		[SerializeField]
+		internal UnityEvent<double> unityEvent;
+		public override UnityEventBase UnityEvent => unityEvent;
+	}
+
+	[System.Serializable]
+	internal partial class EventDataChar : BaseEventData
+	{
+		[SerializeField]
+		internal UnityEvent<char> unityEvent;
+		public override UnityEventBase UnityEvent => unityEvent;
+	}
+
+	[System.Serializable]
+	internal partial class EventDataObject : BaseEventData
+	{
+		[SerializeField]
+		internal UnityEvent<Object> unityEvent;
+		public override UnityEventBase UnityEvent => unityEvent;
+	}
+
+	[System.Serializable]
+	internal partial class EventDataGameObject : BaseEventData
+	{
+		[SerializeField]
+		internal UnityEvent<GameObject> unityEvent;
+		public override UnityEventBase UnityEvent => unityEvent;
+	}
+
 #if UNITY_EDITOR
-    internal class ComponentEventsBuildPreprocessor : UnityEditor.Build.IPreprocessBuildWithReport
+
+	internal class ComponentEventsBuildPreprocessor : UnityEditor.Build.IPreprocessBuildWithReport
     {
         public int callbackOrder => 0;
 
