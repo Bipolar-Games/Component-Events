@@ -11,7 +11,7 @@ namespace Bipolar.ComponentEvents
 		private readonly System.Delegate invokeDelegate; 
 		private readonly Component targetComponent;
 
-		private EventBinding(Component targetComponent, EventData eventData)
+		public EventBinding(Component targetComponent, EventData eventData)
 		{
 			this.targetComponent = targetComponent;
 
@@ -48,9 +48,6 @@ namespace Bipolar.ComponentEvents
 				return Expression.Call(instanceExpression, invokeUnityEventInfo);
 			}
 		}
-
-		public static EventBinding Create(Component target, EventData eventData) => 
-			new EventBinding(target, eventData);
 
 		public void Enable()
 		{

@@ -32,7 +32,7 @@ namespace Bipolar.ComponentEvents
 
 			runtimeBindigns = new EventBinding[count];
 			for (int i = 0; i < count; i++)
-				runtimeBindigns[i] = EventBinding.Create(targetComponent, eventsData[i]);
+				runtimeBindigns[i] = new EventBinding(targetComponent, eventsData[i]);
 		}
 
 		private void OnEnable()
