@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using UnityEngine;
 
@@ -32,6 +34,16 @@ namespace Bipolar.ComponentEvents
 
 			return typeof(EventData);
 		}
+
+		public static ParameterExpression[] GetEventParameterExpressions(EventInfo eventInfo)
+		{
+			Type eventHandlerType = eventInfo.EventHandlerType;
+			MethodInfo invokeMethodInfo = eventHandlerType.GetMethod(nameof(Action.Invoke));
+			ParameterInfo[] parameterInfos = invokeMethodInfo.GetParameters();
+			ParameterExpression[] eventParameters = parameterInfos.Select(p => Expression.Parameter(p.ParameterType, p.Name)).ToArray();
+			return eventParameters;
+		}
+
 	}
 
 	public partial class ComponentEvents

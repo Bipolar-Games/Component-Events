@@ -25,7 +25,7 @@ namespace Bipolar.ComponentEvents
 				return;
 			}
 
-			CreateEventBindings();
+			//CreateEventBindings();
 		}
 
 		private void CreateEventBindings()
@@ -34,14 +34,14 @@ namespace Bipolar.ComponentEvents
 			var events = componentType.GetEvents();
 			int count = Mathf.Min(events.Length, eventsData.Length);
 			for (int i = 0; i < count; i++)
-				BindEvent(eventsData[i]);
+				eventsData[i].Initialize(targetComponent);
 
 			void BindEvent(BaseEventData unityEventData)
 			{
 				var eventInfo = componentType.GetEvent(unityEventData.eventName);
 				unityEventData.EventInfo = eventInfo;
 
-				var eventParameters = GetEventParameterExpressions();
+				var eventParameters = ComponentEventsUtility.GetEventParameterExpressions(eventInfo);
 
 				Expression instanceExpression = Expression.Constant(unityEventData.UnityEvent);
 				var invokeUnityEventInfo = unityEventData.UnityEvent.GetType().GetMethod(nameof(UnityEvent.Invoke));
@@ -53,15 +53,6 @@ namespace Bipolar.ComponentEvents
 
 				Delegate compiledDelegate = lambda.Compile();
 				unityEventData.InvokeDelegate = compiledDelegate;
-
-				ParameterExpression[] GetEventParameterExpressions()
-				{
-					Type eventHandlerType = eventInfo.EventHandlerType;
-					MethodInfo invokeMethodInfo = eventHandlerType.GetMethod(nameof(Action.Invoke));
-					ParameterInfo[] parameterInfos = invokeMethodInfo.GetParameters();
-					ParameterExpression[] eventParameters = parameterInfos.Select(p => Expression.Parameter(p.ParameterType, p.Name)).ToArray();
-					return eventParameters;
-				}
 
 				Expression CreateUnityEventInvokeExpression()
 				{
