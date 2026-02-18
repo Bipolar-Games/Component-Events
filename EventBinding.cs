@@ -7,28 +7,28 @@ namespace Bipolar.ComponentEvents
 {
 	public class EventBinding
 	{
-		private EventInfo EventInfo;
-		private System.Delegate InvokeDelegate; 
-		private Component TargetComponent;
+		private readonly EventInfo eventInfo;
+		private readonly System.Delegate invokeDelegate; 
+		private readonly Component targetComponent;
 
 		private EventBinding(Component targetComponent, EventData eventData)
 		{
-			TargetComponent = targetComponent;
+			this.targetComponent = targetComponent;
 
 			var componentType = targetComponent.GetType();
-			EventInfo = componentType.GetEvent(eventData.eventName);
+			eventInfo = componentType.GetEvent(eventData.eventName);
 
-			var eventParameters = ComponentEventsUtility.GetEventParameterExpressions(EventInfo);
+			var eventParameters = ComponentEventsUtility.GetEventParameterExpressions(eventInfo);
 			Expression instanceExpression = Expression.Constant(eventData.UnityEvent);
 
 			var invokeUnityEventInfo = eventData.UnityEvent.GetType().GetMethod(nameof(UnityEvent.Invoke));
 			var unityEventParameters = invokeUnityEventInfo.GetParameters();
 
 			Expression expression = CreateUnityEventInvokeExpression();
-			LambdaExpression lambda = Expression.Lambda(EventInfo.EventHandlerType, expression, eventParameters);
+			LambdaExpression lambda = Expression.Lambda(eventInfo.EventHandlerType, expression, eventParameters);
 
 			var compiledDelegate = lambda.Compile();
-			InvokeDelegate = compiledDelegate;
+			invokeDelegate = compiledDelegate;
 
 			Expression CreateUnityEventInvokeExpression()
 			{
@@ -54,12 +54,12 @@ namespace Bipolar.ComponentEvents
 
 		public void Enable()
 		{
-			EventInfo.AddEventHandler(TargetComponent, InvokeDelegate);
+			eventInfo.AddEventHandler(targetComponent, invokeDelegate);
 		}
 
 		public void Disable()
 		{
-			EventInfo.RemoveEventHandler(TargetComponent, InvokeDelegate);
+			eventInfo.RemoveEventHandler(targetComponent, invokeDelegate);
 		}
 	}
 }
