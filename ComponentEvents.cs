@@ -83,22 +83,16 @@ namespace Bipolar.ComponentEvents
 			}
 		}
 
-
-
 		private void OnEnable()
 		{
 			foreach (var eventDatum in eventsData)
-			{
-				EventInfo eventInfo = eventDatum.EventInfo;
-				Debug.Log(eventDatum.UnityEvent.GetPersistentEventCount() + " persistent actions");
-				eventInfo.AddEventHandler(targetComponent, eventDatum.InvokeDelegate);
-			}
+				eventDatum.Enable(targetComponent);
 		}
 
 		private void OnDisable()
 		{
 			foreach (var eventDatum in eventsData)
-				eventDatum?.EventInfo?.RemoveEventHandler(targetComponent, eventDatum.InvokeDelegate);
+				eventDatum.Disable(targetComponent);
 		}
 
 		private void OnDestroy()
