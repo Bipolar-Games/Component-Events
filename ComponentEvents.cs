@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -9,22 +8,8 @@ using UnityEngine.Events;
 
 namespace Bipolar.ComponentEvents
 {
-	using Object = UnityEngine.Object;	
-	
 	public sealed partial class ComponentEvents : MonoBehaviour
 	{
-		internal static readonly Dictionary<Type, Type> eventDataTypesByArgumentType = new Dictionary<Type, Type>
-		{
-			[typeof(int)] = typeof(EventDataInt),
-			[typeof(bool)] = typeof(EventDataBool),
-			[typeof(float)] = typeof(EventDataFloat),
-			[typeof(string)] = typeof(EventDataString),
-			[typeof(char)] = typeof(EventDataChar),
-			[typeof(double)] = typeof(EventDataDouble),
-			[typeof(GameObject)] = typeof(EventDataGameObject),
-			[typeof(Object)] = typeof(EventDataObject),
-		};
-
 		[SerializeField]
 		internal Component targetComponent;
 
@@ -62,7 +47,7 @@ namespace Bipolar.ComponentEvents
 					for (int a = 0; a < possibleParametersCount; a++)
 					{
 						var argumentType = eventParameters[a].Type;
-						if (eventDataTypesByArgumentType.ContainsKey(argumentType))
+						if (EventTypeMappings.TryGetEventDataType(argumentType, out _))
 						{
 							Expression passedParameter = eventParameters[a];
 							body = Expression.Call(instanceExpression, invokeUnityEventInfo, passedParameter);

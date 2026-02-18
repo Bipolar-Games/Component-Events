@@ -26,7 +26,7 @@ namespace Bipolar.ComponentEvents
 			for (int i = 0; i < possibleParametersCount; i++)
 			{
 				var argumentType = eventParameters[i].ParameterType;
-				if (ComponentEvents.eventDataTypesByArgumentType.TryGetValue(argumentType, out var eventDataType))
+				if (EventTypeMappings.TryGetEventDataType(argumentType, out var eventDataType))
 					return eventDataType;
 			}
 

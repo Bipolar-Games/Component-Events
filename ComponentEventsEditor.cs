@@ -1,6 +1,4 @@
 #if UNITY_EDITOR
-using System.Reflection;
-using System;
 using UnityEditor;
 using UnityEngine;
 
@@ -14,7 +12,7 @@ namespace Bipolar.ComponentEvents.Editor
 			using (new EditorGUI.DisabledScope(true))
 				EditorGUILayout.ObjectField("Script", MonoScript.FromMonoBehaviour((MonoBehaviour)target), GetType(), false);
 
-#if !UNITY_2021_1_OR_NEWER
+#if !UNITY_2022_1_OR_NEWER
             if (PlayerSettings.GetScriptingBackend(EditorUserBuildSettings.selectedBuildTargetGroup) == ScriptingImplementation.IL2CPP)
             {
                 EditorGUILayout.HelpBox("Component Events is not supported in IL2CPP scripting backend", MessageType.Error);
