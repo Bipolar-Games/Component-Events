@@ -13,7 +13,7 @@ namespace Bipolar.ComponentEvents
 	
 	public sealed partial class ComponentEvents : MonoBehaviour
 	{
-		private static readonly Dictionary<Type, Type> eventDataTypesByArgumentType = new Dictionary<Type, Type>
+		internal static readonly Dictionary<Type, Type> eventDataTypesByArgumentType = new Dictionary<Type, Type>
 		{
 			[typeof(int)] = typeof(EventDataInt),
 			[typeof(bool)] = typeof(EventDataBool),
@@ -24,14 +24,6 @@ namespace Bipolar.ComponentEvents
 			[typeof(GameObject)] = typeof(EventDataGameObject),
 			[typeof(Object)] = typeof(EventDataObject),
 		};
-
-		public static Type GetEventDataType(Type argumentType)
-		{
-			if (eventDataTypesByArgumentType.TryGetValue(argumentType, out var unityEventType))
-				return unityEventType;
-
-			return null;
-		}
 
 		[SerializeField]
 		internal Component targetComponent;
