@@ -25,12 +25,19 @@ namespace Bipolar.ComponentEvents
 				return;
 			}
 
+			RebuildEventBindings();
+		}
+
+		private void RebuildEventBindings()
+		{
 			var componentType = targetComponent.GetType();
 			var events = componentType.GetEvents();
 			int count = Mathf.Min(events.Length, eventsData.Length);
 			for (int i = 0; i < count; i++)
+				BindEvent(eventsData[i]);
+
+			void BindEvent(BaseEventData unityEventData)
 			{
-				var unityEventData = eventsData[i];
 				var eventInfo = componentType.GetEvent(unityEventData.eventName);
 				unityEventData.EventInfo = eventInfo;
 
@@ -40,31 +47,30 @@ namespace Bipolar.ComponentEvents
 				var invokeUnityEventInfo = unityEventData.UnityEvent.GetType().GetMethod(nameof(UnityEvent.Invoke));
 				var unityEventParameters = invokeUnityEventInfo.GetParameters();
 
-				Expression body = null;
-				int possibleParametersCount = Mathf.Min(2, eventParameters.Length);
-				if (unityEventParameters.Length > 0)
-				{
-					for (int a = 0; a < possibleParametersCount; a++)
-					{
-						var argumentType = eventParameters[a].Type;
-						if (EventTypeMappings.TryGetEventDataType(argumentType, out _))
-						{
-							Expression passedParameter = eventParameters[a];
-							body = Expression.Call(instanceExpression, invokeUnityEventInfo, passedParameter);
-							break;
-						}
-					}
-				}
+				Expression expression = CreateUnityEventInvokeExpression();
 
-				if (body == null)
-				{
-					body = Expression.Call(instanceExpression, invokeUnityEventInfo);
-				}
-
-				LambdaExpression lambda = Expression.Lambda(eventInfo.EventHandlerType, body, eventParameters);
+				LambdaExpression lambda = Expression.Lambda(eventInfo.EventHandlerType, expression, eventParameters);
 
 				Delegate compiledDelegate = lambda.Compile();
 				unityEventData.InvokeDelegate = compiledDelegate;
+
+				Expression CreateUnityEventInvokeExpression()
+				{
+					int possibleParametersCount = Mathf.Min(2, eventParameters.Length);
+					if (unityEventParameters.Length > 0)
+					{
+						for (int i = 0; i < possibleParametersCount; i++)
+						{
+							var argumentType = eventParameters[i].Type;
+							if (EventTypeMappings.TryGetEventDataType(argumentType, out _))
+							{
+								Expression passedParameter = eventParameters[i];
+								return Expression.Call(instanceExpression, invokeUnityEventInfo, passedParameter);
+							}
+						}
+					}
+					return Expression.Call(instanceExpression, invokeUnityEventInfo);
+				}
 			}
 		}
 
@@ -90,7 +96,7 @@ namespace Bipolar.ComponentEvents
 		private void OnDisable()
 		{
 			foreach (var eventDatum in eventsData)
-				eventDatum?.EventInfo?.AddEventHandler(targetComponent, eventDatum.InvokeDelegate);
+				eventDatum?.EventInfo?.RemoveEventHandler(targetComponent, eventDatum.InvokeDelegate);
 		}
 
 		private void OnDestroy()
