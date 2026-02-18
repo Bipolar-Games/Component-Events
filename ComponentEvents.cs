@@ -1,10 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
-using UnityEditor;
-using UnityEngine;
-using UnityEngine.Events;
+﻿using UnityEngine;
 
 namespace Bipolar.ComponentEvents
 {
@@ -16,6 +10,8 @@ namespace Bipolar.ComponentEvents
 		[SerializeReference]
 		internal EventData[] eventsData;
 
+		private EventBinding[] runtimeBindigns;
+
 		private void Awake()
 		{
 			if (targetComponent == null)
@@ -25,7 +21,7 @@ namespace Bipolar.ComponentEvents
 				return;
 			}
 
-			//CreateEventBindings();
+			CreateEventBindings();
 		}
 
 		private void CreateEventBindings()
@@ -33,68 +29,31 @@ namespace Bipolar.ComponentEvents
 			var componentType = targetComponent.GetType();
 			var events = componentType.GetEvents();
 			int count = Mathf.Min(events.Length, eventsData.Length);
+
+			runtimeBindigns = new EventBinding[count];
 			for (int i = 0; i < count; i++)
-				eventsData[i].Initialize(targetComponent);
-
-			void BindEvent(EventData unityEventData)
-			{
-				var eventInfo = componentType.GetEvent(unityEventData.eventName);
-				unityEventData.EventInfo = eventInfo;
-
-				var eventParameters = ComponentEventsUtility.GetEventParameterExpressions(eventInfo);
-
-				Expression instanceExpression = Expression.Constant(unityEventData.UnityEvent);
-				var invokeUnityEventInfo = unityEventData.UnityEvent.GetType().GetMethod(nameof(UnityEvent.Invoke));
-				var unityEventParameters = invokeUnityEventInfo.GetParameters();
-
-				Expression expression = CreateUnityEventInvokeExpression();
-
-				LambdaExpression lambda = Expression.Lambda(eventInfo.EventHandlerType, expression, eventParameters);
-
-				Delegate compiledDelegate = lambda.Compile();
-				unityEventData.InvokeDelegate = compiledDelegate;
-
-				Expression CreateUnityEventInvokeExpression()
-				{
-					int possibleParametersCount = Mathf.Min(2, eventParameters.Length);
-					if (unityEventParameters.Length > 0)
-					{
-						for (int i = 0; i < possibleParametersCount; i++)
-						{
-							var argumentType = eventParameters[i].Type;
-							if (EventTypeMappings.TryGetEventDataType(argumentType, out _))
-							{
-								Expression passedParameter = eventParameters[i];
-								return Expression.Call(instanceExpression, invokeUnityEventInfo, passedParameter);
-							}
-						}
-					}
-					return Expression.Call(instanceExpression, invokeUnityEventInfo);
-				}
-			}
+				runtimeBindigns[i] = EventBinding.Create(targetComponent, eventsData[i]);
 		}
 
 		private void OnEnable()
 		{
-			foreach (var eventDatum in eventsData)
-				eventDatum.Enable(targetComponent);
+			foreach (var binding in runtimeBindigns)
+				binding.Enable();
 		}
 
 		private void OnDisable()
 		{
-			foreach (var eventDatum in eventsData)
-				eventDatum.Disable(targetComponent);
+			foreach (var binding in runtimeBindigns)
+				binding.Disable();
 		}
 
 		private void OnDestroy()
 		{
-			for (int i = 0; i < eventsData.Length; i++)
-			{
-				eventsData[i].Clear();
-				eventsData[i] = null;
-			}
-		}
+			for (int i = 0; i < runtimeBindigns.Length; i++)
+				runtimeBindigns[i] = null;
 
+			runtimeBindigns = null;
+		}
 
 		private void OnValidate()
 		{
