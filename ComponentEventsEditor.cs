@@ -43,7 +43,7 @@ namespace Bipolar.ComponentEvents.Editor
 				for (int i = 0; i < eventsDataProperty.arraySize; i++)
 				{
 					var eventProperty = eventsDataProperty.GetArrayElementAtIndex(i);
-					var unityEventProperty = eventProperty?.FindPropertyRelative(nameof(EventData.unityEvent));
+					var unityEventProperty = eventProperty?.FindPropertyRelative(nameof(EventDataVoid.unityEvent));
 					if (unityEventProperty != null)
 					{
 						var label = new GUIContent(ObjectNames.NicifyVariableName(GetEventDataName(eventProperty)));
@@ -59,7 +59,7 @@ namespace Bipolar.ComponentEvents.Editor
 
         private static string GetEventDataName(SerializedProperty property)
         {
-            return property?.FindPropertyRelative(nameof(EventData.eventName))?.stringValue;
+            return property?.FindPropertyRelative(nameof(EventDataVoid.eventName))?.stringValue;
         }
     }
 }

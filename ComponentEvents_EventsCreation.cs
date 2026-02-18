@@ -9,12 +9,12 @@ namespace Bipolar.ComponentEvents
 {
 	public static class ComponentEventsUtility
 	{
-		public static BaseEventData CreateEventData(EventInfo componentEvent)
+		public static EventData CreateEventData(EventInfo componentEvent)
 		{
 			var eventHandlerType = componentEvent.EventHandlerType;
 			Type eventDataType = GetEventDataType(eventHandlerType);
 
-			var unityEventInstance = (BaseEventData)Activator.CreateInstance(eventDataType);
+			var unityEventInstance = (EventData)Activator.CreateInstance(eventDataType);
 			unityEventInstance.eventName = componentEvent.Name;
 			return unityEventInstance;
 		}
@@ -32,7 +32,7 @@ namespace Bipolar.ComponentEvents
 					return eventDataType;
 			}
 
-			return typeof(EventData);
+			return typeof(EventDataVoid);
 		}
 
 		public static ParameterExpression[] GetEventParameterExpressions(EventInfo eventInfo)
@@ -56,7 +56,7 @@ namespace Bipolar.ComponentEvents
 
 			var componentType = targetComponent.GetType();
 			var events = componentType.GetEvents();
-			var eventsDataToSerialize = new List<BaseEventData>();
+			var eventsDataToSerialize = new List<EventData>();
 
 			for (int i = 0; i < events.Length; i++)
 			{
@@ -68,12 +68,12 @@ namespace Bipolar.ComponentEvents
 #endif
 		}
 
-		private BaseEventData GetEventData(EventInfo componentEvent)
+		private EventData GetEventData(EventInfo componentEvent)
 		{
 			int serializedEventIndex = eventsData == null
 				? -1
 				: Array.FindIndex(eventsData, CompareNames);
-			bool CompareNames(BaseEventData eventDatum) =>
+			bool CompareNames(EventData eventDatum) =>
 				eventDatum.eventName == componentEvent.Name;
 
 			if (serializedEventIndex >= 0)
@@ -87,7 +87,7 @@ namespace Bipolar.ComponentEvents
 			return CreateEventData(componentEvent);
 		}
 
-		private BaseEventData CreateEventData(EventInfo componentEvent)
+		private EventData CreateEventData(EventInfo componentEvent)
 		{
 			return ComponentEventsUtility.CreateEventData(componentEvent);
 		}

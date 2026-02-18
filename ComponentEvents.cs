@@ -14,7 +14,7 @@ namespace Bipolar.ComponentEvents
 		internal Component targetComponent;
 
 		[SerializeReference]
-		internal BaseEventData[] eventsData;
+		internal EventData[] eventsData;
 
 		private void Awake()
 		{
@@ -36,7 +36,7 @@ namespace Bipolar.ComponentEvents
 			for (int i = 0; i < count; i++)
 				eventsData[i].Initialize(targetComponent);
 
-			void BindEvent(BaseEventData unityEventData)
+			void BindEvent(EventData unityEventData)
 			{
 				var eventInfo = componentType.GetEvent(unityEventData.eventName);
 				unityEventData.EventInfo = eventInfo;

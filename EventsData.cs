@@ -23,7 +23,7 @@ namespace Bipolar.ComponentEvents
 
 
 	[System.Serializable]
-	public abstract class BaseEventData
+	public abstract class EventData
 	{
 		public string eventName;
 		public abstract UnityEventBase UnityEvent { get; }
@@ -88,7 +88,7 @@ namespace Bipolar.ComponentEvents
 	}
 
 	[System.Serializable]
-	internal partial class EventData : BaseEventData
+	internal class EventDataVoid : EventData
 	{
 		[SerializeField]
 		internal UnityEvent unityEvent;
@@ -96,7 +96,7 @@ namespace Bipolar.ComponentEvents
 	}
 
 	[System.Serializable]
-	internal partial class EventDataInt : BaseEventData
+	internal class EventDataInt : EventData
 	{
 		[SerializeField]
 		internal UnityEvent<int> unityEvent;
@@ -104,7 +104,7 @@ namespace Bipolar.ComponentEvents
 	}
 
 	[System.Serializable]
-	internal partial class EventDataFloat : BaseEventData
+	internal class EventDataFloat : EventData
 	{
 		[SerializeField]
 		internal UnityEvent<float> unityEvent;
@@ -112,7 +112,7 @@ namespace Bipolar.ComponentEvents
 	}
 
 	[System.Serializable]
-	internal partial class EventDataString : BaseEventData
+	internal class EventDataString : EventData
 	{
 		[SerializeField]
 		internal UnityEvent<string> unityEvent;
@@ -120,7 +120,7 @@ namespace Bipolar.ComponentEvents
 	}
 
 	[System.Serializable]
-	internal partial class EventDataBool : BaseEventData
+	internal class EventDataBool : EventData
 	{
 		[SerializeField]
 		internal UnityEvent<bool> unityEvent;
@@ -128,7 +128,7 @@ namespace Bipolar.ComponentEvents
 	}
 
 	[System.Serializable]
-	internal partial class EventDataDouble : BaseEventData
+	internal class EventDataDouble : EventData
 	{
 		[SerializeField]
 		internal UnityEvent<double> unityEvent;
@@ -136,7 +136,7 @@ namespace Bipolar.ComponentEvents
 	}
 
 	[System.Serializable]
-	internal partial class EventDataChar : BaseEventData
+	internal class EventDataChar : EventData
 	{
 		[SerializeField]
 		internal UnityEvent<char> unityEvent;
@@ -144,7 +144,7 @@ namespace Bipolar.ComponentEvents
 	}
 
 	[System.Serializable]
-	internal partial class EventDataObject : BaseEventData
+	internal class EventDataObject : EventData
 	{
 		[SerializeField]
 		internal UnityEvent<Object> unityEvent;
@@ -152,7 +152,7 @@ namespace Bipolar.ComponentEvents
 	}
 
 	[System.Serializable]
-	internal partial class EventDataGameObject : BaseEventData
+	internal class EventDataGameObject : EventData
 	{
 		[SerializeField]
 		internal UnityEvent<GameObject> unityEvent;
