@@ -10,77 +10,52 @@ namespace Bipolar.ComponentEvents
 		public abstract UnityEventBase UnityEvent { get; }
 	}
 
-	[System.Serializable]
-	internal class EventDataVoid : EventData
+	public abstract class EventData<TEvent> : EventData
+		where TEvent : UnityEventBase
 	{
 		[SerializeField]
-		internal UnityEvent unityEvent;
+		internal TEvent unityEvent;
 		public override UnityEventBase UnityEvent => unityEvent;
 	}
 
 	[System.Serializable]
-	internal class EventDataInt : EventData
-	{
-		[SerializeField]
-		internal UnityEvent<int> unityEvent;
-		public override UnityEventBase UnityEvent => unityEvent;
-	}
+	internal class EventDataVoid : EventData<UnityEvent>
+	{ }
+
+	public abstract class EventDataWithArgs<TArg> : EventData<UnityEvent<TArg>>
+	{ }
 
 	[System.Serializable]
-	internal class EventDataFloat : EventData
-	{
-		[SerializeField]
-		internal UnityEvent<float> unityEvent;
-		public override UnityEventBase UnityEvent => unityEvent;
-	}
+	internal class EventDataInt : EventDataWithArgs<int>
+	{ }
 
 	[System.Serializable]
-	internal class EventDataString : EventData
-	{
-		[SerializeField]
-		internal UnityEvent<string> unityEvent;
-		public override UnityEventBase UnityEvent => unityEvent;
-	}
+	internal class EventDataFloat : EventDataWithArgs<float>
+	{ }
 
 	[System.Serializable]
-	internal class EventDataBool : EventData
-	{
-		[SerializeField]
-		internal UnityEvent<bool> unityEvent;
-		public override UnityEventBase UnityEvent => unityEvent;
-	}
+	internal class EventDataString : EventDataWithArgs<string>
+	{ }
 
 	[System.Serializable]
-	internal class EventDataDouble : EventData
-	{
-		[SerializeField]
-		internal UnityEvent<double> unityEvent;
-		public override UnityEventBase UnityEvent => unityEvent;
-	}
+	internal class EventDataBool : EventDataWithArgs<bool>
+	{ }
 
 	[System.Serializable]
-	internal class EventDataChar : EventData
-	{
-		[SerializeField]
-		internal UnityEvent<char> unityEvent;
-		public override UnityEventBase UnityEvent => unityEvent;
-	}
+	internal class EventDataDouble : EventDataWithArgs<double>
+	{ }
 
 	[System.Serializable]
-	internal class EventDataObject : EventData
-	{
-		[SerializeField]
-		internal UnityEvent<Object> unityEvent;
-		public override UnityEventBase UnityEvent => unityEvent;
-	}
+	internal class EventDataChar : EventDataWithArgs<char>
+	{ }
 
 	[System.Serializable]
-	internal class EventDataGameObject : EventData
-	{
-		[SerializeField]
-		internal UnityEvent<GameObject> unityEvent;
-		public override UnityEventBase UnityEvent => unityEvent;
-	}
+	internal class EventDataObject : EventDataWithArgs<Object>
+	{ }
+
+	[System.Serializable]
+	internal class EventDataGameObject : EventDataWithArgs<GameObject>
+	{ }
 
 #if UNITY_EDITOR
 
